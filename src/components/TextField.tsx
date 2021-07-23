@@ -13,7 +13,7 @@ export const TextField: FC<Props> = ({ label, error, ...props }) => {
   return (
     <Container>
       <Label>{label}</Label>
-      <Field {...props} />
+      <Field error={!!error} {...props} />
       <ErrorContainer>{error && <Error>{error}</Error>}</ErrorContainer>
     </Container>
   );
@@ -32,12 +32,16 @@ const Label = styled.Text`
   font-size: 12px;
 `;
 
-const Field = styled(TextInput)`
+type FieldProps = {
+  readonly error: boolean;
+};
+
+const Field = styled(TextInput)<FieldProps>`
   padding: 8px;
   border-radius: 8px;
   background-color: #f3f3f4;
   color: #444;
-  border: 1px solid #ccc;
+  border: 1px solid ${({ error }) => (error ? "red" : "#ccc")};
 `;
 
 const ErrorContainer = styled.View`

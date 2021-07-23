@@ -6,15 +6,21 @@ import { Button } from "react-native";
 import styled from "styled-components/native";
 import * as yup from "yup";
 import { TextField } from "./src/components/TextField";
+import { ToggleField } from "./src/components/ToggleField";
 
+// Define the form schema using Typescript
 type FormData = {
   email: string;
-  "Phone number": string;
+  "phone number": string;
+  hungry: boolean;
+  food: string;
 };
 
+// Define the form validation schema using Yup
 const schema = yup.object().shape({
   email: yup.string().email().required(),
-  "Phone number": yup
+  // A very simple phone number validation using a regular expression
+  "phone number": yup
     .string()
     .matches(/^\+?\d{9,15}$/)
     .required(),
@@ -23,6 +29,7 @@ const schema = yup.object().shape({
 export default function App() {
   const {
     control,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
@@ -30,6 +37,9 @@ export default function App() {
     resolver: yupResolver(schema),
   });
 
+  const watchHungry = watch("hungry", false);
+
+  // In real life you would probably want to do a POST request to your server or something similar
   const onSubmit = (data: FormData) => console.log(data);
 
   return (
@@ -53,7 +63,7 @@ export default function App() {
         />
 
         <Controller
-          name="Phone number"
+          name="phone number"
           control={control}
           render={({ field: { onChange, onBlur, value, name } }) => (
             <TextField
@@ -62,10 +72,35 @@ export default function App() {
               clearButtonMode="unless-editing"
               onChangeText={onChange}
               value={value}
-              error={errors["Phone number"]?.message}
+              error={errors["phone number"]?.message}
             />
           )}
         />
+
+        <Controller
+          name="hungry"
+          control={control}
+          render={({ field: { onChange, value, name } }) => (
+            <ToggleField onValueChange={onChange} value={value} label={name} />
+          )}
+        />
+
+        {watchHungry && (
+          <Controller
+            name="food"
+            control={control}
+            render={({ field: { onChange, onBlur, value, name } }) => (
+              <TextField
+                label={name}
+                onBlur={onBlur}
+                clearButtonMode="unless-editing"
+                onChangeText={onChange}
+                value={value}
+                error={errors.food?.message}
+              />
+            )}
+          />
+        )}
 
         <Button title="Submit" onPress={handleSubmit(onSubmit)} />
       </ScrollView>
